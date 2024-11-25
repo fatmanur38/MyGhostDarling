@@ -1,0 +1,89 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  
+  body {
+    font-family: Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #222;
+  }
+  
+  #game-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  #score, #lives ,#time {
+    color: white;
+    margin: 10px;
+  }
+  
+  #map {
+    display: grid;
+    grid-template-columns: repeat(25, 30px);
+    grid-template-rows: repeat(21, 30px);
+    gap: 2px;
+     /* background-color: black;  */
+  }
+  
+  .cell {
+    width: 30px;
+    height: 30px;
+    background-size: cover;
+    background-position: center;
+  }
+  
+  .wall {
+    background-color: navy;
+  }
+  
+  .path {
+    background-color: gray;
+  }
+  
+  .manghost {
+    background-image: url('./assets/manghost.png');
+  }
+  
+  .womanghost {
+    background-image: url('./assets/womanghost.png');
+  }
+  
+  .enemy {
+    background-image: url('./assets/enemy.png');
+  }
+  
+  .flower {
+    background-image: url('./assets/flower.png');
+  }
+  
+  /* Pause menüsü */
+#pause-menu {
+    display: none;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgba(0, 0, 0, 0.8);
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    z-index: 10;
+}
+
+#pause-menu button {
+    margin: 10px;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+#pause-menu.hidden {
+    display: none;
+}

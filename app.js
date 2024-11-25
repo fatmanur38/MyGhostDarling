@@ -14,6 +14,7 @@ let timeElapsed = 0;
 let totalFlowers = 20;  // Toplam çiçek sayısı
 let collectedFlowers = 0; // Toplanan çiçek sayısı
 let intervalId;
+let enemyIntervalId; // Düşman hareketi için interval ID
 
 // Flower sayacını güncelle
 function updateFlowerCounter() {
@@ -42,6 +43,8 @@ const mapData = [
     [0, 2, 1, 1, 1, 0, 1, 1, 1, 1, 1, 5, 0, 5, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0],
     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
 ];
+
+const originalMapData = JSON.parse(JSON.stringify(mapData)); // Başlangıç haritasını sakla
 
 // Haritayı render et
 function renderMap() {
@@ -109,7 +112,7 @@ function moveEnemies() {
         if (enemy.x === manghostPosition.x && enemy.y === manghostPosition.y) {
             lives--;
             if (lives === 0) {
-                alert("Oyun bitti! Tüm canlar kaybedildi.");
+                alert("Oyun bitti! Tüm canlar kaybedildi. Topladığınız çiçeklerden kazandığınız skor: ${score}");
                 restartGame();
             }
         }
@@ -117,8 +120,8 @@ function moveEnemies() {
     renderMap();
 }
 
-// Düşmanları 0.4 saniyede bir hareket ettir
-setInterval(moveEnemies, 400);
+// Oyun başlatılırken düşman hareketi intervalini başlat
+enemyIntervalId = setInterval(moveEnemies, 400);
 
 
 // Manghost'u hareket ettir
@@ -145,20 +148,22 @@ function moveManghost(dx, dy) {
         // Çiçek toplama kontrolü
         if (mapData[newY][newX] === 5) {
             collectedFlowers++;
+            score += 20;
             updateFlowerCounter();
         }
         
         // Woman Ghost ile çarpışma kontrolü
         if (mapData[newY][newX] === 3) {
             if (collectedFlowers === totalFlowers) {
-                alert("Tebrikler! Tüm çiçekleri topladınız ve oyunu kazandınız.");
+                const timeScore = 5000 - (30 - timeElapsed)*20;
+                const finalScore = score + timeScore ;
+                alert("Tebrikler! Tüm çiçekleri topladınız ve oyunu kazandınız.. Nihai skorunuz: ${finalScore}");
                 restartGame();
             } else {
                 alert(`${totalFlowers - collectedFlowers} çiçek kaldı, toplamaya devam et!`);
-                console.log("ne var",mapData[newY][newX])
-                mapData[manghostPosition.y][manghostPosition.x] = 2; // Manghost'un yeni pozisyonunu güncelle
+                mapData[newY-1][newX] = 2; // Manghost'un yeni pozisyonunu güncelle
                 mapData[newY][newX] = 3
-                console.log("ne var1",mapData[newY][newX])
+
             }
         }else{
             mapData[newY][newX] = 2; // Manghost'un yeni pozisyonunu güncelle
@@ -183,36 +188,52 @@ function gameLoop() {
     requestAnimationFrame(gameLoop);
 }
 
-// Zamanlayıcı başlat
+
 function startTimer() {
+    clearInterval(intervalId); // Eski zamanlayıcıyı temizle
     intervalId = setInterval(() => {
-        if (!isPaused) timeElapsed++;
-    }, 1000);
+        if (!isPaused) {
+            timeElapsed++;
+            hud.time.textContent = `Time: ${timeElapsed}`;
+        }
+    }, 1000); // Zamanlayıcıyı başlat (1 saniye aralıklarla)
 }
 
+const pauseMenu = document.getElementById("pause-menu");
 // Oyun duraklat
 function togglePause() {
     isPaused = !isPaused;
-    const pauseMenu = document.getElementById("pause-menu");
     pauseMenu.style.display = isPaused ? "flex" : "none";
 
-    if (!isPaused) {
+    if (isPaused) {
+        clearInterval(enemyIntervalId); // Düşmanların hareketini durdur
+    } else {
+        enemyIntervalId = setInterval(moveEnemies, 400); // Düşmanları tekrar hareket ettir
         gameLoop();
     }
 }
 
-// Restart fonksiyonu
 function restartGame() {
+    // Haritayı başlangıç haline getir
+    mapData.length = 0; // Mevcut haritayı boşalt
+    originalMapData.forEach(row => mapData.push([...row])); // Haritayı orijinal haliyle doldur
+
+    // Oyun durumunu sıfırla
+    score = 0;
+    lives = 3;
+    timeElapsed =0;
     collectedFlowers = 0;
-    manghostPosition = { x: 1, y: 17 }; // Başlangıç pozisyonu
-    mapData.forEach((row, y) => {
-        row.forEach((cell, x) => {
-            if (cell === 2) mapData[y][x] = 1;
-            else if (cell === 3) mapData[y][x] = 1; // Woman Ghost'u temizle
-            else if (cell === 5) mapData[y][x] = 5; // Çiçekler başlangıca dönsün
-        });
-    });
-    renderMap();
+    manghostPosition = { x: 1, y: 17 };
+    isPaused =false;
+    // HUD'yi güncelle
+    hud.score.textContent = `Score: ${score}`;
+    hud.lives.textContent = `Lives: ${lives}`;
+    hud.time.textContent =`Time: ${timeElapsed}s`;
+    updateFlowerCounter();
+    
+    // Haritayı yeniden oluştur
+    pauseMenu.style.display = "none";
+    startGame();
 }
 
 // Oyunu başlat

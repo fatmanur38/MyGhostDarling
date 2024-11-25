@@ -2,81 +2,86 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-  }
-  
-  body {
+}
+
+body {
     font-family: Arial, sans-serif;
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
+    height: 99vh;
     background-color: #222;
-  }
-  
-  #game-container {
+}
+
+#game-container {
     display: flex;
     flex-direction: column;
     align-items: center;
-    
-  }
-  #hud-container {
+
+}
+
+#hud-container {
     display: flex;
     justify-content: space-between;
     width: 100%;
 }
+
 #hud-container div {
     margin-right: 10px;
 }
-  
-  #score, #lives ,#time,#flowers {
+
+#score,
+#lives,
+#time,
+#flowers {
     color: white;
     margin: 10px;
-  }
-  
-  #map {
+}
+
+#map {
     display: grid;
     grid-template-columns: repeat(25, 30px);
     grid-template-rows: repeat(21, 30px);
     gap: 2px;
-     /* background-color: black;  */
-  }
-  
-  .cell {
+    /* background-color: black;   */
+}
+
+.cell {
     width: 30px;
     height: 30px;
     background-size: cover;
     background-position: center;
-  }
-  
-  .wall {
+}
+
+.wall {
     background-color: rgb(231, 138, 239);
-  }
-  
-  .path {
+}
+
+.path {
     background-color: gray;
-  }
-  
-  .manghost {
+}
+
+.manghost {
     background-image: url('./assets/manghost.png');
     background-color: gray;
-  }
-  
-  .womanghost {
+}
+
+.womanghost {
     background-image: url('./assets/womanghost.png');
     background-color: gray;
-  }
-  
-  .enemy {
+}
+
+.enemy {
     background-image: url('./assets/enemy.png');
     background-color: gray;
-  }
-  
-  .flower {
+}
+
+.flower {
     background-image: url('./assets/flower.png');
     background-color: gray;
-  }
-  
-  /* Pause menüsü */
+}
+
+/* Pause menüsü */
 #pause-menu {
     display: none;
     position: absolute;

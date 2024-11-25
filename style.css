@@ -17,9 +17,18 @@
     display: flex;
     flex-direction: column;
     align-items: center;
+    
   }
+  #hud-container {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+}
+#hud-container div {
+    margin-right: 10px;
+}
   
-  #score, #lives ,#time {
+  #score, #lives ,#time,#flowers {
     color: white;
     margin: 10px;
   }
@@ -40,7 +49,7 @@
   }
   
   .wall {
-    background-color: navy;
+    background-color: rgb(231, 138, 239);
   }
   
   .path {
@@ -49,18 +58,22 @@
   
   .manghost {
     background-image: url('./assets/manghost.png');
+    background-color: gray;
   }
   
   .womanghost {
     background-image: url('./assets/womanghost.png');
+    background-color: gray;
   }
   
   .enemy {
     background-image: url('./assets/enemy.png');
+    background-color: gray;
   }
   
   .flower {
     background-image: url('./assets/flower.png');
+    background-color: gray;
   }
   
   /* Pause menüsü */

@@ -3,6 +3,7 @@ const hud = {
     score: document.getElementById("score"),
     lives: document.getElementById("lives"),
     time: document.getElementById("time"),
+    flowers: document.getElementById("flowers"), // Çiçek sayacı için HUD ekle
 };
 
 let score = 0;
@@ -10,7 +11,14 @@ let lives = 3;
 let isPaused = false;
 let manghostPosition = { x: 1, y: 17 };
 let timeElapsed = 0;
+let totalFlowers = 20;  // Toplam çiçek sayısı
+let collectedFlowers = 0; // Toplanan çiçek sayısı
 let intervalId;
+
+// Flower sayacını güncelle
+function updateFlowerCounter() {
+    hud.flowers.textContent = `Flowers: ${collectedFlowers}/${totalFlowers}`;
+}
 
 // Harita verisi: 0 = Duvar, 1 = Yol, 2 = Manghost, 3 = Womanghost, 4 = Düşman, 5 = Çiçek
 const mapData = [
@@ -55,7 +63,9 @@ function renderMap() {
             mapElement.appendChild(div);
         });
     });
+    updateFlowerCounter();
 }
+
 
 const enemies = [
     { x: 1, y: 13, direction: -1, range: [1, 5], vertical: false }, // 13. satır, 1-5 arası sağdan sola
@@ -107,7 +117,7 @@ function moveEnemies() {
     renderMap();
 }
 
-// Düşmanları 0.5 saniyede bir hareket ettir
+// Düşmanları 0.4 saniyede bir hareket ettir
 setInterval(moveEnemies, 400);
 
 
@@ -125,42 +135,42 @@ function moveManghost(dx, dy) {
         newY < mapData.length &&
         mapData[newY][newX] !== 0
     ) {
-        // Çiçek topla
-        if (mapData[newY][newX] === 5) score += 10;
-
-        // Eski pozisyonu temizle
+        // Eski konumu temizle
         mapData[manghostPosition.y][manghostPosition.x] = 1;
 
-        // Yeni pozisyonu güncelle
+        // Yeni konuma taşı
         manghostPosition.x = newX;
         manghostPosition.y = newY;
-        mapData[newY][newX] = 2;
 
-        // WomanGhost kontrolü
+        // Çiçek toplama kontrolü
+        if (mapData[newY][newX] === 5) {
+            collectedFlowers++;
+            updateFlowerCounter();
+        }
+        
+        // Woman Ghost ile çarpışma kontrolü
         if (mapData[newY][newX] === 3) {
-            const remainingFlowers = countFlowers();
-            if (remainingFlowers === 0) {
-                alert("Tüm çiçekler toplandı! Oyun bitti 🎉");
+            if (collectedFlowers === totalFlowers) {
+                alert("Tebrikler! Tüm çiçekleri topladınız ve oyunu kazandınız.");
                 restartGame();
             } else {
-                alert(`Son ${remainingFlowers} çiçek kaldı!`);
+                alert(`${totalFlowers - collectedFlowers} çiçek kaldı, toplamaya devam et!`);
+                console.log("ne var",mapData[newY][newX])
+                mapData[manghostPosition.y][manghostPosition.x] = 2; // Manghost'un yeni pozisyonunu güncelle
+                mapData[newY][newX] = 3
+                console.log("ne var1",mapData[newY][newX])
             }
+        }else{
+            mapData[newY][newX] = 2; // Manghost'un yeni pozisyonunu güncelle
+            mapData[9][12]= 3;
         }
 
+        
         renderMap();
     }
 }
 
-// Çiçek sayısını kontrol et
-function countFlowers() {
-    let flowerCount = 0;
-    mapData.forEach((row) => {
-        row.forEach((cell) => {
-            if (cell === 5) flowerCount++;
-        });
-    });
-    return flowerCount;
-}
+
 
 // Oyun döngüsü
 function gameLoop() {
@@ -191,25 +201,18 @@ function togglePause() {
     }
 }
 
-// Restart işlemi
+// Restart fonksiyonu
 function restartGame() {
-    clearInterval(intervalId);
-    score = 0;
-    lives = 3;
-    timeElapsed = 0;
-    manghostPosition = { x: 1, y: 17 };
-    enemyPosition = { x: 2, y: 6 };
-    enemyDirection = 1;
-
-    // Haritayı sıfırla
+    collectedFlowers = 0;
+    manghostPosition = { x: 1, y: 17 }; // Başlangıç pozisyonu
     mapData.forEach((row, y) => {
         row.forEach((cell, x) => {
-            if (cell === 2 || cell === 3 || cell === 4) mapData[y][x] = 1;
+            if (cell === 2) mapData[y][x] = 1;
+            else if (cell === 3) mapData[y][x] = 1; // Woman Ghost'u temizle
+            else if (cell === 5) mapData[y][x] = 5; // Çiçekler başlangıca dönsün
         });
     });
-    mapData[17][1] = 2; // Manghost pozisyonu
-    togglePause(); // Pause menüsünü kapat
-    startGame();
+    renderMap();
 }
 
 // Oyunu başlat

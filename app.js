@@ -9,8 +9,6 @@ let score = 0;
 let lives = 3;
 let isPaused = false;
 let manghostPosition = { x: 1, y: 17 };
-let enemyDirection = 1; // 1: Sağ, -1: Sol
-let enemyPosition = { x: 1, y: 5 }; // Enemy başlangıç pozisyonu
 let timeElapsed = 0;
 let intervalId;
 
@@ -58,6 +56,60 @@ function renderMap() {
         });
     });
 }
+
+const enemies = [
+    { x: 1, y: 13, direction: -1, range: [1, 5], vertical: false }, // 13. satır, 1-5 arası sağdan sola
+    { x: 5, y: 5, direction: -1, range: [1, 5], vertical: false },  // 5. satır, 1-5 arası sağdan sola
+    { x: 19, y: 13, direction: -1, range: [19, 23], vertical: false }, // 13. satır, 19-23 arası sağdan sola
+    { x: 23, y: 5, direction: -1, range: [19, 23], vertical: false },  // 5. satır, 19-23 arası sağdan sola
+    { x: 9, y: 7, direction: -1, range: [9, 15], vertical: false }, // 7. satır, 9-15 arası sağdan sola
+    { x: 15, y: 11, direction: -1, range: [9, 15], vertical: false },  // 11. satır, 9-15 arası sağdan sola
+    { x: 10, y: 1, direction: 1, range: [1, 4], vertical: true },   // 10. sütun, 1-4 arası yukarıdan aşağıya
+    { x: 14, y: 4, direction: 1, range: [1, 4], vertical: true },   // 14. sütun, 1-4 arası yukarıdan aşağıya
+    { x: 10, y: 14, direction: 1, range: [14, 17], vertical: true }, // 10. sütun, 14-17 arası yukarıdan aşağıya
+    { x: 14, y: 17, direction: 1, range: [14, 17], vertical: true }, // 14. sütun, 14-17 arası yukarıdan aşağıya
+];
+
+// Düşmanları hareket ettir
+function moveEnemies() {
+    enemies.forEach((enemy) => {
+        // Eski pozisyonu temizle
+        mapData[enemy.y][enemy.x] = 1;
+
+        if (enemy.vertical) {
+            // Dikey hareket
+            enemy.y += enemy.direction;
+            if (enemy.y < enemy.range[0] || enemy.y > enemy.range[1]) {
+                enemy.direction *= -1; // Yön değiştir
+                enemy.y += enemy.direction;
+            }
+        } else {
+            // Yatay hareket
+            enemy.x += enemy.direction;
+            if (enemy.x < enemy.range[0] || enemy.x > enemy.range[1]) {
+                enemy.direction *= -1; // Yön değiştir
+                enemy.x += enemy.direction;
+            }
+        }
+
+        // Yeni pozisyonu güncelle
+        mapData[enemy.y][enemy.x] = 4;
+
+        // Çarpışma kontrolü
+        if (enemy.x === manghostPosition.x && enemy.y === manghostPosition.y) {
+            lives--;
+            if (lives === 0) {
+                alert("Oyun bitti! Tüm canlar kaybedildi.");
+                restartGame();
+            }
+        }
+    });
+    renderMap();
+}
+
+// Düşmanları 0.5 saniyede bir hareket ettir
+setInterval(moveEnemies, 400);
+
 
 // Manghost'u hareket ettir
 function moveManghost(dx, dy) {
@@ -110,35 +162,6 @@ function countFlowers() {
     return flowerCount;
 }
 
-// Enemy hareketi
-function moveEnemy() {
-    if (isPaused) return;
-
-    const newX = enemyPosition.x + enemyDirection;
-
-    if (newX < 1 || newX > 5) {
-        enemyDirection *= -1; // Yön değiştir
-    } else {
-        mapData[enemyPosition.y][enemyPosition.x] = 1; // Eski pozisyonu temizle
-        enemyPosition.x = newX;
-        mapData[enemyPosition.y][enemyPosition.x] = 4; // Yeni pozisyonu güncelle
-    }
-
-    // Enemy çarpışma kontrolü
-    if (
-        enemyPosition.x === manghostPosition.x &&
-        enemyPosition.y === manghostPosition.y
-    ) {
-        lives--;
-        if (lives === 0) {
-            alert("Oyun bitti! Tüm canlar kaybedildi.");
-            restartGame();
-        }
-    }
-
-    renderMap();
-}
-
 // Oyun döngüsü
 function gameLoop() {
     if (isPaused) return;
@@ -147,7 +170,6 @@ function gameLoop() {
     hud.lives.textContent = `Lives: ${lives}`;
     hud.time.textContent = `Time: ${timeElapsed}s`;
 
-    moveEnemy();
     requestAnimationFrame(gameLoop);
 }
 
@@ -186,8 +208,6 @@ function restartGame() {
         });
     });
     mapData[17][1] = 2; // Manghost pozisyonu
-    mapData[6][2] = 4; // Enemy başlangıç pozisyonu
-
     togglePause(); // Pause menüsünü kapat
     startGame();
 }

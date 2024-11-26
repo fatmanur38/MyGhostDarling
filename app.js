@@ -6,9 +6,13 @@ const hud = {
     flowers: document.getElementById("flowers"), // Çiçek sayacı için HUD ekle
 };
 
+// Yeni bir ses nesnesi oluştur
+const gameMusic = new Audio("/assets/music.mp3");
+gameMusic.loop = true; // Müziğin sürekli çalması için
+
 let score = 0;
 let lives = 3;
-let isPaused = false;
+let isPaused = true;
 let manghostPosition = { x: 1, y: 17 };
 let timeElapsed = 0;
 let totalFlowers = 20;  // Toplam çiçek sayısı
@@ -45,6 +49,150 @@ const mapData = [
 ];
 
 const originalMapData = JSON.parse(JSON.stringify(mapData)); // Başlangıç haritasını sakla
+
+// Oyunun başlangıç ekranını oluştur
+function createStartScreen() {
+    const startScreen = document.createElement("div");
+    startScreen.id = "start-screen";
+    startScreen.style.position = "absolute";
+    startScreen.style.top = "0";
+    startScreen.style.left = "0";
+    startScreen.style.width = "100%";
+    startScreen.style.height = "100%";
+    startScreen.style.backgroundColor = "rgba(0, 0, 0, 0.8)";
+    startScreen.style.display = "flex";
+    startScreen.style.flexDirection = "column";
+    startScreen.style.justifyContent = "center";
+    startScreen.style.alignItems = "center";
+    startScreen.style.zIndex = "1000";
+
+    // PNG Görseli
+    const pngImage = document.createElement("img");
+    pngImage.src = "/assets/start.png"; // Görselin yolunu buraya yazın
+    pngImage.alt = "Start";
+    pngImage.style.width = "300px"; // Görselin genişliği
+    pngImage.style.marginBottom = "20px"; // Görselin alt boşluğu
+
+    // Play Butonu
+    const playButton = document.createElement("button");
+    playButton.textContent = "Play";
+    playButton.style.padding = "10px 20px";
+    playButton.style.fontSize = "20px";
+    playButton.style.cursor = "pointer";
+    playButton.style.border = "none";
+    playButton.style.borderRadius = "5px";
+    playButton.style.backgroundColor = "#28a745";
+    playButton.style.color = "white";
+
+    playButton.addEventListener("click", () => {
+        document.body.removeChild(startScreen); // Başlangıç ekranını kaldır
+        startGame(); // Oyunu başlat
+        gameMusic.play(); // Müziği başlat
+    });
+
+    startScreen.appendChild(pngImage);
+    startScreen.appendChild(playButton);
+    document.body.appendChild(startScreen);
+}
+
+
+function displayGameOverScreen() {
+    const gameOverScreen = document.createElement("div");
+    gameOverScreen.id = "game-over-screen";
+    gameOverScreen.style.position = "absolute";
+    gameOverScreen.style.top = "0";
+    gameOverScreen.style.left = "0";
+    gameOverScreen.style.width = "100%";
+    gameOverScreen.style.height = "100%";
+    gameOverScreen.style.backgroundColor = "rgba(0, 0, 0, 0.8)";
+    gameOverScreen.style.display = "flex";
+    gameOverScreen.style.flexDirection = "column";
+    gameOverScreen.style.justifyContent = "center";
+    gameOverScreen.style.alignItems = "center";
+    gameOverScreen.style.zIndex = "1000";
+
+    // PNG Görseli
+    const gameOverImage = document.createElement("img");
+    gameOverImage.src = "/assets/gameover.png"; // Görselin yolunu buraya yazın
+    gameOverImage.alt = "Game Over";
+    gameOverImage.style.width = "300px"; // Görselin genişliği
+    gameOverImage.style.marginBottom = "20px"; // Görselin alt boşluğu
+
+    // Restart Butonu
+    const restartButton = document.createElement("button");
+    restartButton.textContent = "Restart";
+    restartButton.style.padding = "10px 20px";
+    restartButton.style.fontSize = "20px";
+    restartButton.style.cursor = "pointer";
+    restartButton.style.border = "none";
+    restartButton.style.borderRadius = "5px";
+    restartButton.style.backgroundColor = "#dc3545";
+    restartButton.style.color = "white";
+
+    
+    restartButton.addEventListener("click", () => {
+        document.body.removeChild(gameOverScreen); // Oyun bitiş ekranını kaldır
+        restartGame(); // Oyunu yeniden başlat
+    });
+
+    gameOverScreen.appendChild(gameOverImage);
+    gameOverScreen.appendChild(restartButton);
+    document.body.appendChild(gameOverScreen);
+}
+
+// Kazanma ekranını gösteren fonksiyon
+function displayWinScreen(finalScore) {
+    const winScreen = document.createElement("div");
+    winScreen.id = "win-screen";
+    winScreen.style.position = "absolute";
+    winScreen.style.top = "0";
+    winScreen.style.left = "0";
+    winScreen.style.width = "100%";
+    winScreen.style.height = "100%";
+    winScreen.style.backgroundColor = "rgba(0, 0, 0, 0.8)";
+    winScreen.style.display = "flex";
+    winScreen.style.flexDirection = "column";
+    winScreen.style.justifyContent = "center";
+    winScreen.style.alignItems = "center";
+    winScreen.style.zIndex = "1000";
+
+    // PNG Görseli
+    const winImage = document.createElement("img");
+    winImage.src = "/assets/win.png"; // Görselin yolunu buraya yazın
+    winImage.alt = "You Win!";
+    winImage.style.width = "300px"; // Görsel genişliği
+    winImage.style.marginBottom = "20px"; // Alt boşluk
+
+    // Nihai skor
+    const scoreText = document.createElement("p");
+    scoreText.textContent = `Final Score: ${finalScore}`;
+    scoreText.style.color = "white";
+    scoreText.style.fontSize = "24px";
+    scoreText.style.marginBottom = "20px";
+
+    // Restart Butonu
+    const restartButton = document.createElement("button");
+    restartButton.textContent = "Restart";
+    restartButton.style.padding = "10px 20px";
+    restartButton.style.fontSize = "20px";
+    restartButton.style.cursor = "pointer";
+    restartButton.style.border = "none";
+    restartButton.style.borderRadius = "5px";
+    restartButton.style.backgroundColor = "#007bff";
+    restartButton.style.color = "white";
+
+    restartButton.addEventListener("click", () => {
+        document.body.removeChild(winScreen); // Kazanma ekranını kaldır
+        gameMusic.currentTime = 0; // Müziği başa sar
+        gameMusic.play(); // Müziği yeniden başlat
+        restartGame(); // Oyunu yeniden başlat
+    });
+
+    winScreen.appendChild(winImage);
+    winScreen.appendChild(scoreText);
+    winScreen.appendChild(restartButton);
+    document.body.appendChild(winScreen);
+}
 
 // Haritayı render et
 function renderMap() {
@@ -112,8 +260,7 @@ function moveEnemies() {
         if (enemy.x === manghostPosition.x && enemy.y === manghostPosition.y) {
             lives--;
             if (lives === 0) {
-                alert("Oyun bitti! Tüm canlar kaybedildi. Topladığınız çiçeklerden kazandığınız skor: ${score}");
-                restartGame();
+                displayGameOverScreen(); // Oyun bitiş ekranını göster
             }
         }
     });
@@ -157,8 +304,7 @@ function moveManghost(dx, dy) {
             if (collectedFlowers === totalFlowers) {
                 const timeScore = 5000 - (30 - timeElapsed)*20;
                 const finalScore = score + timeScore ;
-                alert("Tebrikler! Tüm çiçekleri topladınız ve oyunu kazandınız.. Nihai skorunuz: ${finalScore}");
-                restartGame();
+                displayWinScreen(finalScore); // Kazanma ekranını göster
             } else {
                 alert(`${totalFlowers - collectedFlowers} çiçek kaldı, toplamaya devam et!`);
                 mapData[newY-1][newX] = 2; // Manghost'un yeni pozisyonunu güncelle
@@ -209,6 +355,7 @@ function togglePause() {
         clearInterval(enemyIntervalId); // Düşmanların hareketini durdur
     } else {
         enemyIntervalId = setInterval(moveEnemies, 400); // Düşmanları tekrar hareket ettir
+        gameMusic.play(); // Müziği devam ettir
         gameLoop();
     }
 }
@@ -231,13 +378,18 @@ function restartGame() {
     hud.time.textContent =`Time: ${timeElapsed}s`;
     updateFlowerCounter();
     
+    clearInterval(enemyIntervalId);
+    enemyIntervalId = setInterval(moveEnemies, 500);
     // Haritayı yeniden oluştur
     pauseMenu.style.display = "none";
+    gameMusic.currentTime = 0; // Müziği başa sar
+    gameMusic.play(); // Müziği yeniden başlat
     startGame();
 }
 
 // Oyunu başlat
 function startGame() {
+    isPaused = false;
     renderMap();
     startTimer();
     gameLoop();
@@ -262,9 +414,12 @@ document.addEventListener("keydown", (event) => {
             break;
         case "Escape":
             togglePause();
+            gameMusic.pause(); // Müziği durdur
             break;
     }
 });
 
-// Başlatma
-startGame();
+// Sayfa yüklendiğinde başlangıç ekranını göster
+window.onload = () => {
+    createStartScreen();
+};

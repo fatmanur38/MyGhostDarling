@@ -7,7 +7,7 @@ const hud = {
 };
 
 // Yeni bir ses nesnesi oluştur
-const gameMusic = new Audio("./assets/music.mp3");
+const gameMusic = new Audio("/assets/music.mp3");
 gameMusic.loop = true; // Müziğin sürekli çalması için
 
 let score = 0;
@@ -68,7 +68,7 @@ function createStartScreen() {
 
     // PNG Görseli
     const pngImage = document.createElement("img");
-    pngImage.src = "./assets/start.png"; // Görselin yolunu buraya yazın
+    pngImage.src = "/assets/start.png"; // Görselin yolunu buraya yazın
     pngImage.alt = "Start";
     pngImage.style.width = "300px"; // Görselin genişliği
     pngImage.style.marginBottom = "20px"; // Görselin alt boşluğu
@@ -113,7 +113,7 @@ function displayGameOverScreen() {
 
     // PNG Görseli
     const gameOverImage = document.createElement("img");
-    gameOverImage.src = "./assets/gameover.png"; // Görselin yolunu buraya yazın
+    gameOverImage.src = "/assets/gameover.png"; // Görselin yolunu buraya yazın
     gameOverImage.alt = "Game Over";
     gameOverImage.style.width = "300px"; // Görselin genişliği
     gameOverImage.style.marginBottom = "20px"; // Görselin alt boşluğu
@@ -158,7 +158,7 @@ function displayWinScreen(finalScore) {
 
     // PNG Görseli
     const winImage = document.createElement("img");
-    winImage.src = "./assets/win.png"; // Görselin yolunu buraya yazın
+    winImage.src = "/assets/win.png"; // Görselin yolunu buraya yazın
     winImage.alt = "You Win!";
     winImage.style.width = "300px"; // Görsel genişliği
     winImage.style.marginBottom = "20px"; // Alt boşluk

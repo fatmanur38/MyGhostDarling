@@ -62,22 +62,22 @@ body {
 }
 
 .manghost {
-    background-image: url('./assets/manghost.png');
+    background-image: url('/assets/manghost.png');
     background-color: gray;
 }
 
 .womanghost {
-    background-image: url('./assets/womanghost.png');
+    background-image: url('/assets/womanghost.png');
     background-color: gray;
 }
 
 .enemy {
-    background-image: url('./assets/enemy.png');
+    background-image: url('/assets/enemy.png');
     background-color: gray;
 }
 
 .flower {
-    background-image: url('./assets/flower.png');
+    background-image: url('/assets/flower.png');
     background-color: gray;
 }
 

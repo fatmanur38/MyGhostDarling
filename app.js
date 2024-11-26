@@ -68,7 +68,7 @@ function createStartScreen() {
 
     // PNG Görseli
     const pngImage = document.createElement("img");
-    pngImage.src = "/assets/start.png"; // Görselin yolunu buraya yazın
+    pngImage.src = "/MyGhostDarling/assets/start.png"; // Görselin yolunu buraya yazın
     pngImage.alt = "Start";
     pngImage.style.width = "300px"; // Görselin genişliği
     pngImage.style.marginBottom = "20px"; // Görselin alt boşluğu

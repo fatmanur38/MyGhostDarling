@@ -311,9 +311,19 @@ function moveManghost(dx, dy) {
         // Woman Ghost ile çarpışma kontrolü
         if (mapData[newY][newX] === 3) {
             if (collectedFlowers === totalFlowers) {
-                const timeScore = 5000 - (30 - timeElapsed)*20;
-                const finalScore = score + timeScore ;
-                displayWinScreen(finalScore); // Kazanma ekranını göster
+                if (timeElapsed < 30){
+                    const timeScore = 5000 + (30 - timeElapsed)*20;
+                    const finalScore = score + timeScore ;
+                    displayWinScreen(finalScore); // Kazanma ekranını göster
+                }else if (timeElapsed== 30){
+                    const timeScore = 5000 + 30*20;
+                    const finalScore = score + timeScore ;
+                    displayWinScreen(finalScore); // Kazanma ekranını göster 
+                }else{
+                    const timeScore = 5000 - (timeElapsed - 30)*20;
+                    const finalScore = score + timeScore ;
+                    displayWinScreen(finalScore); // Kazanma ekranını göster
+                }
             } else {
                 alert(`${totalFlowers - collectedFlowers} çiçek kaldı, toplamaya devam et!`);
                 mapData[newY-1][newX] = 2; // Manghost'un yeni pozisyonunu güncelle

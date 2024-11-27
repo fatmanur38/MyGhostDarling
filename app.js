@@ -44,17 +44,37 @@ function setupDatabase() {
 setupDatabase();
 
 // Oyuncu verilerini kaydet
+
 function savePlayerData(nickname, score) {
     if (!db) {
         console.error("Database not initialized.");
         return;
     }
+    
     const transaction = db.transaction("players", "readwrite");
     const store = transaction.objectStore("players");
 
-    // Skor güncelleme veya yeni oyuncu ekleme
-    store.put({ nickname, score });
-    transaction.oncomplete = () => console.log("Player data saved successfully.");
+    // Get the existing player data
+    const request = store.get(nickname);
+    request.onsuccess = (event) => {
+        const player = event.target.result;
+
+        if (player) {
+            // If the player exists and the new score is higher, update the score
+            if (score > player.score) {
+                player.score = score; // Update the score
+                store.put(player); // Save the updated player data
+                console.log("Player score updated.");
+            } else {
+                console.log("New score is lower, not updating.");
+            }
+        } else {
+            // If the player doesn't exist, add a new record
+            store.put({ nickname, score });
+            console.log("New player data saved.");
+        }
+    };
+
     transaction.onerror = (event) =>
         console.error("Error saving player data:", event.target.error);
 }

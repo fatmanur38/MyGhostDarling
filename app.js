@@ -96,7 +96,7 @@ function createStartScreen() {
 }
 
 
-function displayGameOverScreen() {
+function displayGameOverScreen(finalScore) {
     const gameOverScreen = document.createElement("div");
     gameOverScreen.id = "game-over-screen";
     gameOverScreen.style.position = "absolute";
@@ -118,6 +118,14 @@ function displayGameOverScreen() {
     gameOverImage.style.width = "300px"; // Görselin genişliği
     gameOverImage.style.marginBottom = "20px"; // Görselin alt boşluğu
 
+    // Nihai skor
+    const scoreText = document.createElement("p");
+    scoreText.textContent = `Final Score: ${finalScore}`;
+    scoreText.style.color = "white";
+    scoreText.style.fontSize = "24px";
+    scoreText.style.marginBottom = "20px";
+
+
     // Restart Butonu
     const restartButton = document.createElement("button");
     restartButton.textContent = "Restart";
@@ -136,6 +144,7 @@ function displayGameOverScreen() {
     });
 
     gameOverScreen.appendChild(gameOverImage);
+    gameOverScreen.appendChild(scoreText);
     gameOverScreen.appendChild(restartButton);
     document.body.appendChild(gameOverScreen);
 }
@@ -260,7 +269,7 @@ function moveEnemies() {
         if (enemy.x === manghostPosition.x && enemy.y === manghostPosition.y) {
             lives--;
             if (lives === 0) {
-                displayGameOverScreen(); // Oyun bitiş ekranını göster
+                displayGameOverScreen(20*collectedFlowers); // Oyun bitiş ekranını göster
             }
         }
     });

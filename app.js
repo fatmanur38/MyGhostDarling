@@ -19,6 +19,100 @@ let totalFlowers = 20;  // Toplam çiçek sayısı
 let collectedFlowers = 0; // Toplanan çiçek sayısı
 let intervalId;
 let enemyIntervalId; // Düşman hareketi için interval ID
+let nickname = "";
+
+// IndexedDB işlemleri için database ayarla
+const dbName = "GameDatabase";
+let db;
+
+function setupDatabase() {
+    const request = indexedDB.open(dbName, 1);
+    request.onupgradeneeded = (event) => {
+        db = event.target.result;
+        if (!db.objectStoreNames.contains("players")) {
+            db.createObjectStore("players", { keyPath: "nickname" });
+        }
+    };
+    request.onsuccess = (event) => {
+        db = event.target.result;
+    };
+    request.onerror = (event) => {
+        console.error("Database error:", event.target.error);
+    };
+}
+
+setupDatabase();
+
+// Oyuncu verilerini kaydet
+function savePlayerData(nickname, score) {
+    if (!db) {
+        console.error("Database not initialized.");
+        return;
+    }
+    const transaction = db.transaction("players", "readwrite");
+    const store = transaction.objectStore("players");
+
+    // Skor güncelleme veya yeni oyuncu ekleme
+    store.put({ nickname, score });
+    transaction.oncomplete = () => console.log("Player data saved successfully.");
+    transaction.onerror = (event) =>
+        console.error("Error saving player data:", event.target.error);
+}
+
+// Skor tablosunu göster
+function displayScoreTable() {
+    if (!db) {
+        console.error("Database not initialized.");
+        return;
+    }
+    const transaction = db.transaction("players", "readonly");
+    const store = transaction.objectStore("players");
+
+    // Tüm oyuncuları getir
+    const request = store.getAll();
+    request.onsuccess = (event) => {
+        const players = event.target.result;
+        const scoreList = document.getElementById("score-list");
+        if (!scoreList) {
+            console.error("Score list element not found.");
+            return;
+        }
+        scoreList.innerHTML = ""; // Önceki tabloyu temizle
+
+        // Skor sıralaması
+        players.sort((a, b) => b.score - a.score);
+        players.forEach((player) => {
+            const row = document.createElement("tr");
+
+            // Nickname sütunu
+            const nicknameCell = document.createElement("td");
+            nicknameCell.textContent = player.nickname;
+
+            // Skor sütunu
+            const scoreCell = document.createElement("td");
+            scoreCell.textContent = player.score;
+
+            // Satırı tabloya ekle
+            row.appendChild(nicknameCell);
+            row.appendChild(scoreCell);
+            scoreList.appendChild(row);
+        });
+    };
+    request.onerror = (event) =>
+        console.error("Error retrieving player data:", event.target.error);
+}
+
+// Oyunun sonunda veya yeni bir skor eklendiğinde tabloyu güncelle
+function updateScoreTable() {
+    savePlayerData(nickname, score); // Mevcut skor kaydediliyor
+    displayScoreTable(); // Skor tablosu güncelleniyor
+}
+
+// Oyunu başlatırken ve veritabanı hazır olduğunda tabloyu göster
+window.onload = () => {
+    setupDatabase();
+    displayScoreTable();
+};
 
 // Flower sayacını güncelle
 function updateFlowerCounter() {
@@ -73,7 +167,15 @@ function createStartScreen() {
     pngImage.style.width = "300px"; // Görselin genişliği
     pngImage.style.marginBottom = "20px"; // Görselin alt boşluğu
 
-    // Play Butonu
+    const nicknameInput = document.createElement("input");
+    nicknameInput.type = "text";
+    nicknameInput.placeholder = "Enter your nickname";
+    nicknameInput.style.padding = "10px";
+    nicknameInput.style.fontSize = "16px";
+    nicknameInput.style.marginBottom = "10px";
+    nicknameInput.style.borderRadius = "5px";
+    nicknameInput.style.border = "1px solid #ccc";
+
     const playButton = document.createElement("button");
     playButton.textContent = "Play";
     playButton.style.padding = "10px 20px";
@@ -84,13 +186,22 @@ function createStartScreen() {
     playButton.style.backgroundColor = "#28a745";
     playButton.style.color = "white";
 
+    displayScoreTable();
+    
     playButton.addEventListener("click", () => {
-        document.body.removeChild(startScreen); // Başlangıç ekranını kaldır
-        startGame(); // Oyunu başlat
-        gameMusic.play(); // Müziği başlat
+        nickname = nicknameInput.value.trim();
+        if (!nickname) {
+            alert("Nickname cannot be empty!");
+            return;
+        }
+        savePlayerData(nickname, 0); // Başlangıç skorunu kaydet
+        document.body.removeChild(startScreen);
+        startGame();
+        gameMusic.play();
     });
 
     startScreen.appendChild(pngImage);
+    startScreen.appendChild(nicknameInput);
     startScreen.appendChild(playButton);
     document.body.appendChild(startScreen);
 }
@@ -137,7 +248,9 @@ function displayGameOverScreen(finalScore) {
     restartButton.style.backgroundColor = "#dc3545";
     restartButton.style.color = "white";
 
-    
+    savePlayerData(nickname, finalScore); // Skoru kaydet
+    displayScoreTable(); // Skor tablosunu güncelle
+
     restartButton.addEventListener("click", () => {
         document.body.removeChild(gameOverScreen); // Oyun bitiş ekranını kaldır
         restartGame(); // Oyunu yeniden başlat
@@ -189,6 +302,9 @@ function displayWinScreen(finalScore) {
     restartButton.style.borderRadius = "5px";
     restartButton.style.backgroundColor = "#007bff";
     restartButton.style.color = "white";
+
+    savePlayerData(nickname, finalScore); // Skoru kaydet
+    displayScoreTable(); // Skor tablosunu güncelle
 
     restartButton.addEventListener("click", () => {
         document.body.removeChild(winScreen); // Kazanma ekranını kaldır
@@ -269,7 +385,7 @@ function moveEnemies() {
         if (enemy.x === manghostPosition.x && enemy.y === manghostPosition.y) {
             lives--;
             if (lives === 0) {
-                displayGameOverScreen(20*collectedFlowers); // Oyun bitiş ekranını göster
+                displayGameOverScreen(30*collectedFlowers); // Oyun bitiş ekranını göster
             }
         }
     });
@@ -314,15 +430,15 @@ function moveManghost(dx, dy) {
                 if (timeElapsed < 30){
                     const timeScore = 5000 + (30 - timeElapsed)*20;
                     const finalScore = score + timeScore ;
-                    displayWinScreen(finalScore); // Kazanma ekranını göster
+                    displayWinScreen(finalScore+3*100); // Kazanma ekranını göster
                 }else if (timeElapsed== 30){
                     const timeScore = 5000 + 30*20;
                     const finalScore = score + timeScore ;
-                    displayWinScreen(finalScore); // Kazanma ekranını göster 
+                    displayWinScreen(finalScore+3*100); // Kazanma ekranını göster 
                 }else{
                     const timeScore = 5000 - (timeElapsed - 30)*20;
                     const finalScore = score + timeScore ;
-                    displayWinScreen(finalScore); // Kazanma ekranını göster
+                    displayWinScreen(finalScore+3*100); // Kazanma ekranını göster
                 }
             } else {
                 alert(`${totalFlowers - collectedFlowers} çiçek kaldı, toplamaya devam et!`);

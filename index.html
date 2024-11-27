@@ -12,13 +12,30 @@
 <body>
 
   <div id="game-container">
-    <div id="hud-container">
-        <div id="score">Score: 0</div>
-        <div id="lives">Lives: 3</div>
-        <div id="time">Time: 0s</div>
-        <div id="flowers">Flowers: 0/20</div>
+    <div id="score-table">
+        <h3>Score Table</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Nickname</th>
+                    <th>Score</th>
+                </tr>
+            </thead>
+            <tbody id="score-list">
+                <!-- Skorlar buraya gelecek -->
+            </tbody>
+        </table>
     </div>
-    <div id="map"></div>
+    <div id="game-map">
+      <div id="map"></div>
+    </div>
+    <div id="hud">
+        <h3>Player Stats</h3>
+        <p id="score">Score: 0</p>
+        <p id="lives">Lives: 3</p>
+        <p id="time">Time: 0</p>
+        <p id="flowers">Flowers: 0/20</p>
+    </div>
 
     <!-- Pause Menüsü -->
     <div id="pause-menu" class="hidden">

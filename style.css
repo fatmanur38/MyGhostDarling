@@ -5,45 +5,85 @@
 }
 
 body {
-    font-family: Arial, sans-serif;
+    font-family: 'Roboto', sans-serif;
+    background-color: #1e1e2f; /* Daha koyu bir arka plan */
+    color: white;
+    height: 100vh;
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 99vh;
-    background-color: #222;
 }
 
 #game-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-
+    display: grid;
+    grid-template-columns: 20% 60% 20%; /* 3 sütun: skor tablosu, harita, HUD */
+    grid-template-rows: 100%;
+    height: 90vh;
+    width: 90vw;
+    background-color: #2a2a40; /* Hafif koyu zemin */
+    border-radius: 15px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.7);
+    overflow: hidden;
 }
 
-#hud-container {
-    display: flex;
-    justify-content: space-between;
+/* Skor Tablosu */
+#score-table {
+    background-color: #2e3440; /* Nötr koyu ton */
+    padding: 20px;
+    border-right: 2px solid #4c566a; /* Ayrım çizgisi */
+    overflow-y: auto;
+    text-align: center;
+    
+}
+
+#score-table h3 {
+    font-size: 1.6rem;
+    color: #88c0d0; /* Pastel mavi */
+    margin-bottom: 15px;
+    border-bottom: 1px solid #4c566a;
+    padding-bottom: 10px;
+}
+
+table {
     width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+    color: #d8dee9;
 }
 
-#hud-container div {
-    margin-right: 10px;
+table th, table td {
+    padding: 10px;
+    text-align: center;
+    border: 1px solid #4c566a;
 }
 
-#score,
-#lives,
-#time,
-#flowers {
-    color: white;
-    margin: 10px;
+table th {
+    background-color: #3b4252;
+    color: #88c0d0;
+    font-weight: bold;
+}
+
+table td {
+    background-color: #4c566a;
+    color: #eceff4;
+}
+
+/* Harita Alanı */
+#game-map {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #1b1b2b;
 }
 
 #map {
+    margin-top: 60px;
     display: grid;
-    grid-template-columns: repeat(25, 30px);
-    grid-template-rows: repeat(21, 30px);
+    grid-template-columns: repeat(25, 30px); /* 25 sütun */
+    grid-template-rows: repeat(21, 30px); /* 21 satır */
     gap: 2px;
-    /* background-color: black;   */
+    border: 1px solid #4c566a;
+    border-radius: 10px;
 }
 
 .cell {
@@ -80,28 +120,59 @@ body {
     background-image: url('/assets/flower.png');
     background-color: gray;
 }
+/* HUD Alanı */
+#hud {
+    background-color: #2e3440;
+    padding: 20px;
+    border-left: 2px solid #4c566a;
+}
 
-/* Pause menüsü */
+#hud h3 {
+    font-size: 1.6rem;
+    color: #a3be8c; /* Pastel yeşil */
+    margin-bottom: 15px;
+    border-bottom: 1px solid #4c566a;
+    padding-bottom: 10px;
+}
+
+#hud p {
+    font-size: 1rem;
+    color: #eceff4;
+    margin: 10px 0;
+}
+
+#hud p span {
+    font-weight: bold;
+    color: #ebcb8b; /* Altın sarısı */
+}
+
+/* Pause Menüsü */
 #pause-menu {
     display: none;
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    background-color: rgba(0, 0, 0, 0.8);
+    background-color: rgba(30, 30, 47, 0.95); /* Transparan siyah */
     padding: 20px;
     border-radius: 10px;
     text-align: center;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.8);
     z-index: 10;
 }
 
 #pause-menu button {
     margin: 10px;
-    padding: 10px 20px;
-    font-size: 16px;
+    padding: 12px 25px;
+    font-size: 1rem;
     cursor: pointer;
+    background-color: #88c0d0; /* Pastel mavi */
+    color: white;
+    border: none;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
 }
 
-#pause-menu.hidden {
-    display: none;
+#pause-menu button:hover {
+    background-color: #81a1c1;
 }

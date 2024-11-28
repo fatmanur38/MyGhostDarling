@@ -21,105 +21,63 @@ let intervalId;
 let enemyIntervalId; // Düşman hareketi için interval ID
 let nickname = "";
 
-// IndexedDB işlemleri için database ayarla
-const dbName = "GameDatabase";
-let db;
-
-function setupDatabase() {
-    const request = indexedDB.open(dbName, 1);
-    request.onupgradeneeded = (event) => {
-        db = event.target.result;
-        if (!db.objectStoreNames.contains("players")) {
-            db.createObjectStore("players", { keyPath: "nickname" });
+// Save player data to the backend using fetch
+async function savePlayerData(nickname, score) {
+    try {
+        const response = await fetch('https://myghostdarling-backend.onrender.com/api/player', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ nickname, score })
+        });
+        
+        if (!response.ok) {
+            throw new Error('Failed to save player data');
         }
-    };
-    request.onsuccess = (event) => {
-        db = event.target.result;
-    };
-    request.onerror = (event) => {
-        console.error("Database error:", event.target.error);
-    };
+
+        const data = await response.json();
+        console.log('Player data saved:', data);
+    } catch (error) {
+        console.error('Error saving player data:', error);
+    }
 }
 
-setupDatabase();
-
-// Oyuncu verilerini kaydet
-
-function savePlayerData(nickname, score) {
-    if (!db) {
-        console.error("Database not initialized.");
-        return;
-    }
-    
-    const transaction = db.transaction("players", "readwrite");
-    const store = transaction.objectStore("players");
-
-    // Get the existing player data
-    const request = store.get(nickname);
-    request.onsuccess = (event) => {
-        const player = event.target.result;
-
-        if (player) {
-            // If the player exists and the new score is higher, update the score
-            if (score > player.score) {
-                player.score = score; // Update the score
-                store.put(player); // Save the updated player data
-                console.log("Player score updated.");
-            } else {
-                console.log("New score is lower, not updating.");
-            }
-        } else {
-            // If the player doesn't exist, add a new record
-            store.put({ nickname, score });
-            console.log("New player data saved.");
+// Display the score table from the backend using fetch
+async function displayScoreTable() {
+    try {
+        const response = await fetch('https://myghostdarling-backend.onrender.com/api/players');
+        
+        if (!response.ok) {
+            throw new Error('Failed to fetch player data');
         }
-    };
 
-    transaction.onerror = (event) =>
-        console.error("Error saving player data:", event.target.error);
-}
+        const players = await response.json();
 
-// Skor tablosunu göster
-function displayScoreTable() {
-    if (!db) {
-        console.error("Database not initialized.");
-        return;
-    }
-    const transaction = db.transaction("players", "readonly");
-    const store = transaction.objectStore("players");
-
-    // Tüm oyuncuları getir
-    const request = store.getAll();
-    request.onsuccess = (event) => {
-        const players = event.target.result;
         const scoreList = document.getElementById("score-list");
         if (!scoreList) {
             console.error("Score list element not found.");
             return;
         }
-        scoreList.innerHTML = ""; // Önceki tabloyu temizle
+        scoreList.innerHTML = ""; 
 
-        // Skor sıralaması
         players.sort((a, b) => b.score - a.score);
         players.forEach((player) => {
             const row = document.createElement("tr");
 
-            // Nickname sütunu
             const nicknameCell = document.createElement("td");
             nicknameCell.textContent = player.nickname;
 
-            // Skor sütunu
             const scoreCell = document.createElement("td");
             scoreCell.textContent = player.score;
 
-            // Satırı tabloya ekle
             row.appendChild(nicknameCell);
             row.appendChild(scoreCell);
             scoreList.appendChild(row);
         });
-    };
-    request.onerror = (event) =>
-        console.error("Error retrieving player data:", event.target.error);
+    } catch (error) {
+        console.error('Error retrieving player data:', error);
+    }
 }
 
 // Oyunun sonunda veya yeni bir skor eklendiğinde tabloyu güncelle
